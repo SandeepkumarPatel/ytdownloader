@@ -76,11 +76,11 @@ public class FfmpegController {
     	
     		// any error message?
     		StreamGobbler errorGobbler = new 
-    				StreamGobbler(process.getErrorStream(), "ERROR", sc);            
+    				StreamGobbler(process.getErrorStream(), "ERROR");            
         
     		// any output?
     		StreamGobbler outputGobbler = new 
-    				StreamGobbler(process.getInputStream(), "OUTPUT", sc);
+    				StreamGobbler(process.getInputStream(), "OUTPUT");
             
     		// kick them off
     		errorGobbler.start();
@@ -177,12 +177,10 @@ public class FfmpegController {
 	class StreamGobbler extends Thread {
 	    InputStream is;
 	    String type;
-	    ShellUtils.ShellCallback sc;
 	    
-	    StreamGobbler(InputStream is, String type, ShellUtils.ShellCallback sc) {
+	    StreamGobbler(InputStream is, String type) {
 	        this.is = is;
 	        this.type = type;
-	        this.sc = sc;
 		}
 	    
 	    public void run() {
@@ -191,9 +189,9 @@ public class FfmpegController {
 	            BufferedReader br = new BufferedReader(isr);
 	            String line = null;
 	            while ((line = br.readLine()) != null) {
-	            	if (sc != null) {
-	            		sc.shellOut(line);
-	            	}
+	            	// TODO test checking progress into log file
+	            	File req = new File(mContext.getDir("log", 0), "FFmpeg.log");
+	        		Utils.appendStringToFile(req, line);
 	            }
 	        } catch (IOException ioe) {
 	                Log.e(DEBUG_TAG,"error reading shell log", ioe);
